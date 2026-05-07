@@ -15,12 +15,14 @@ There is no test suite.
 
 ## Architecture
 
-This is a single-file React app. All state, logic, and UI live in `src/App.jsx` — there are no sub-components, routing, or external state management.
+React app with no routing or external state management. `src/App.jsx` is the root; it owns `transactions` state and a module-level `categories` array, and delegates to three components:
 
-**State shape** — `transactions` is the core array; each entry has `{ id, description, amount, type, category, date }`. `amount` is stored as a string (known bug — arithmetic on it produces string concatenation instead of numeric sums).
+- **`Summary`** — receives `transactions`, computes `totalIncome`, `totalExpenses`, and `balance` internally.
+- **`TransactionForm`** — owns its own form state (`description`, `amount`, `type`, `category`); calls `onAdd(transaction)` prop when submitted; parses `amount` to `parseFloat` before passing it up.
+- **`TransactionList`** — owns filter state (`filterType`, `filterCategory`); receives `transactions` and `categories` as props.
 
-**Data flow** — everything is derived inline from `transactions` on each render: `totalIncome`, `totalExpenses`, `balance`, and `filteredTransactions`. There is no persistence; state resets on page reload.
+**State shape** — `transactions` is the core array; each entry has `{ id, description, amount, type, category, date }`. `amount` is always a number.
 
-**Categories** — the `categories` array is the single source of truth for both the add-form dropdown and the filter dropdown.
+**Data flow** — `App` passes `transactions` down to all three components. `TransactionForm` pushes new transactions up via `onAdd`. There is no persistence; state resets on page reload.
 
-**Intentional issues** — per the README this starter has a known bug (amount string/number mismatch), poor UI, and messy code. These are meant to be fixed during the course.
+**Categories** — the `categories` array is defined once at module level in `App.jsx` and passed as a prop to both `TransactionForm` and `TransactionList`.
